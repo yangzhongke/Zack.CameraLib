@@ -25,7 +25,7 @@ namespace WinFormCoreDemo1
             }
 
             var vc = cameras[0].VideoCapabilities[3];
-            player.Start(1, new System.Drawing.Size(vc.Width, vc.Height));
+            player.Start(0, new System.Drawing.Size(vc.Width, vc.Height));
             
             player.SetFrameFilter(srcMat=> {
                 var dest = new Mat();

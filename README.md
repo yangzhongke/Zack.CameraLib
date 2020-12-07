@@ -2,7 +2,7 @@
 It supports .NET Standard 2.0( and above), so it supports .NET Core 3.1 (and above) and .NET framework(above 4.6.1).
 
 # Zack.CameraLib.Core
-Used for list connected cameras.
+Used for listing connected cameras.
 
 Step 1:
 
@@ -12,5 +12,55 @@ Install-Package Zack.CameraLib.Core
 
 Step 2:
 ```csharp
+var cameras = CameraUtils.ListCameras();
+foreach(CameraInfo camera in cameras)
+{
+	Console.WriteLine(camera.FriendlyName+","+camera.Index);
+	foreach(VideoCapabilities v in camera.VideoCapabilities)
+	{
+		Console.WriteLine($"{v.FrameRate},{v.Height},{v.Width},{v.VideoFormat}");
+	}
+}
+```
+
+# Zack.WinFormCoreCameraPlayer
+A control used for displaying video of camera.
+Sample code of WinForm for .NET Core.
+
+Step 1:
 
 ```
+Install-Package  Zack.WinFormCoreCameraPlayer
+```
+
+Step 2:
+
+Add a CameraPlayer to a form. 
+
+```csharp
+cameraPlayer.Start(0, new System.Drawing.Size(1024, 768));
+```
+
+The first parameter of Start is the index of selected camera.
+
+If set a filter using SetFrameFilter(), the Image can be processed before the Mat is rendered. OpenCVSharp can be used to process the Mat.
+
+Sample code:
+
+```csharp
+cameraPlayer.SetFrameFilter(srcMat=> {
+	var dest = new Mat();
+	Cv2.BilateralFilter(srcMat, dest, 10, 60, 60);
+	return dest;
+});
+```
+
+WinFormCoreDemo1 is the sample project.
+
+# Zack.WinFormCameraPlayer
+This is the .NET framework version of Zack.WinFormCoreCameraPlayer.
+
+All the code of this .NET framework version is the same as the .NET core version. But I didn't upload the NuGet Package.
+
+WinFormDemo1 is the sample project.
+
