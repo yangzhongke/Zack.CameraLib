@@ -14,7 +14,7 @@ namespace Zack.WinFormCoreCameraPlayer
         private object syncLock = new object();
         private Thread threadFetchFrame;
         public PlayerStatus Status { get; private set; } =PlayerStatus.NotStarted;
-        private System.Threading.Timer repaintTimer;
+        private System.Windows.Forms.Timer repaintTimer = new System.Windows.Forms.Timer();
         private Func<Mat, Mat> frameFilterFunc;
 
         private int _framePerSecond = 10;
@@ -31,7 +31,7 @@ namespace Zack.WinFormCoreCameraPlayer
                     throw new ArgumentOutOfRangeException("FramePerSecond shoud >=1 and <=60");
                 }
                 this._framePerSecond = value;
-                this.repaintTimer.Change(1, 1000 / value);
+                repaintTimer.Interval = 1000 / value;
             }
         }
         public CameraPlayer()
@@ -40,7 +40,9 @@ namespace Zack.WinFormCoreCameraPlayer
                 ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
 
             //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
-            this.repaintTimer = new System.Threading.Timer(RepaintTimerCallback, null, 1, 1000/FramePerSecond);
+            this.repaintTimer.Tick += (se, e) => { this.Invalidate(); };
+            this.repaintTimer.Interval = _framePerSecond;
+            this.repaintTimer.Start();
         }
 
         public void SetFrameFilter(Func<Mat, Mat> frameFilterFunc)
@@ -48,12 +50,6 @@ namespace Zack.WinFormCoreCameraPlayer
             this.frameFilterFunc = frameFilterFunc;
         }
 
-        private void RepaintTimerCallback(object state)
-        {
-            if (!this.IsHandleCreated)
-                return;
-            this.Invoke(new Action(this.Invalidate));
-        }
         protected override void OnPaintBackground(PaintEventArgs e) 
         {
             //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
