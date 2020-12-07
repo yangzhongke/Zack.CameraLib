@@ -1,0 +1,1 @@
+nuget pack Zack.WinFormCameraPlayer.csproj -Prop Configuration=Release 

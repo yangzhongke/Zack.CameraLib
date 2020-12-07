@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Zack.WinFormCameraPlayer</id>
+    <version>1.0.2</version>
+    <title>Zack.WinFormCameraPlayer</title>
+    <authors>Zack Yang(杨中科)</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/yangzhongke/Zack.CameraLib</licenseUrl>
+    <projectUrl>https://github.com/yangzhongke/Zack.CameraLib</projectUrl>
+    <description>CameraPlayer for Windows Forms of .NET Framework</description>
+  </metadata>
+</package>

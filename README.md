@@ -60,7 +60,7 @@ WinFormCoreDemo1 is the sample project.
 # Zack.WinFormCameraPlayer
 This is the .NET framework version of Zack.WinFormCoreCameraPlayer.
 
-All the code of this .NET framework version is the same as the .NET core version. But I didn't upload the NuGet Package.
+All the code of this .NET framework version is the same as the .NET core version. The only difference is the NuGet package name is Zack.WinFormCameraPlayer
 
 WinFormDemo1 is the sample project.
 
