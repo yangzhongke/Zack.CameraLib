@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>List connected cameras.</Description>
+    <PackageProjectUrl>https://github.com/yangzhongke/Zack.CameraLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yangzhongke/Zack.CameraLib</RepositoryUrl>
+    <Authors>Zack Yang(杨中科)</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DirectShowLib.Standard" Version="2.1.0" />
+    <PackageReference Include="SharpDX.MediaFoundation" Version="4.2.0" />
+  </ItemGroup>
+
+</Project>

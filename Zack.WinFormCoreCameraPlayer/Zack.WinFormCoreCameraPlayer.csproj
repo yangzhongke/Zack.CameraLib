@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<UseWindowsForms>true</UseWindowsForms>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<Description>CameraPlayer for Windows Forms of .NET Core</Description>
+	<PackageProjectUrl>https://github.com/yangzhongke/Zack.CameraLib</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/yangzhongke/Zack.CameraLib</RepositoryUrl>
+	<Authors>Zack Yang(杨中科)</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenCvSharp4" Version="4.5.0.20201013" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.5.0.20201013" />
+  </ItemGroup>
+</Project>
