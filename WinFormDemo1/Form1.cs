@@ -15,6 +15,15 @@ namespace WinFormCoreDemo1
         private void Form1_Load(object sender, EventArgs e)
         {
             var cameras = CameraUtils.ListCameras();
+            foreach(CameraInfo camera in cameras)
+            {
+                Console.WriteLine(camera.FriendlyName+","+camera.Index);
+                foreach(VideoCapabilities v in camera.VideoCapabilities)
+                {
+                    Console.WriteLine($"{v.FrameRate},{v.Height},{v.Width},{v.VideoFormat}");
+                }
+            }
+
             var vc = cameras[0].VideoCapabilities[3];
             player.Start(1, new System.Drawing.Size(vc.Width, vc.Height));
             

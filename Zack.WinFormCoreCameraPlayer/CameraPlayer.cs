@@ -157,9 +157,9 @@ namespace Zack.WinFormCoreCameraPlayer
         protected override void Dispose(bool disposing)
         {
             this.Status = PlayerStatus.Stopping;
+            base.Dispose(disposing);            
             this.repaintTimer.Dispose();
-            this.frameMat.Dispose();            
-            base.Dispose(disposing);
+            this.frameMat.Dispose();
         }
     }
 }
