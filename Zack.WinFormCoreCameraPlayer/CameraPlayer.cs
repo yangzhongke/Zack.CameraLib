@@ -12,7 +12,6 @@ namespace Zack.WinFormCoreCameraPlayer
     {
         private Mat frameMat = new Mat();
         private object syncLock = new object();
-        private Thread threadFetchFrame;
         public PlayerStatus Status { get; private set; } =PlayerStatus.NotStarted;
         private System.Windows.Forms.Timer repaintTimer = new System.Windows.Forms.Timer();
         public Func<Mat, Mat> FrameFilterFunc { get; private set; }
@@ -101,7 +100,7 @@ namespace Zack.WinFormCoreCameraPlayer
             this.repaintTimer.Start();
 
             var hwnd = this.Handle;
-            this.threadFetchFrame = new Thread(() => {
+            var threadFetchFrame = new Thread(() => {
                 //the 2nd parameter is needed, or the constructor will cost a lot of time.
                 using (VideoCapture camera = new VideoCapture(deviceIndex, VideoCaptureAPIs.DSHOW))
                 {
@@ -130,9 +129,9 @@ namespace Zack.WinFormCoreCameraPlayer
                             }
                         }
                         Thread.Sleep(1000 / 60);//reduce CPU pressure.
-                    }
-                    this.Status = PlayerStatus.Stopped;
-                }                    
+                    }                    
+                }
+                this.Status = PlayerStatus.Stopped;
             });
             threadFetchFrame.Start();
         }

@@ -1,15 +1,23 @@
 ﻿using OpenCvSharp;
 using System;
 using System.Windows.Forms;
-using Zack.CameraLib.Core;
+using Zack.WinFormCoreCameraPlayer;
 
 namespace WinFormCoreDemo1
 {
     public partial class Form1 : Form
     {
+        private CameraPlayer player;
         public Form1()
         {
             InitializeComponent();
+
+            this.player = new CameraPlayer();
+            this.player.Dock = DockStyle.Fill;
+            this.player.Location = new System.Drawing.Point(0, 0);
+            this.Controls.Add(this.player);
+            this.player.Click += Player_Click;
+
             this.player.Click += (s, e) => {
                 if(this.player.FrameFilterFunc==null)
                 {
@@ -20,6 +28,13 @@ namespace WinFormCoreDemo1
                     this.player.SetFrameFilter(null);
                 }
             };
+        }
+
+        private async void Player_Click(object sender, EventArgs e)
+        {
+            player.SignalToStop();
+            await player.WaitForStop();
+            player.Start(0, new System.Drawing.Size(500, 500));
         }
 
         private Mat zeros_like(Mat mat)

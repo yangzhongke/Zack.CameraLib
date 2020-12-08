@@ -17,13 +17,13 @@ namespace WinFormCoreDemo1
         public FormSelectCamera()
         {
             InitializeComponent();
-
             var cameras = CameraUtils.ListCameras();
             cmbCamera.DisplayMember = nameof(CameraInfo.FriendlyName);
             cmbCamera.ValueMember = nameof(CameraInfo.Index);
             cmbCamera.DataSource = cameras;
 
             this.StartPosition = FormStartPosition.CenterScreen;
+
         }
 
 
