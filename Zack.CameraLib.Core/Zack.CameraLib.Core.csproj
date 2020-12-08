@@ -7,6 +7,7 @@
     <PackageProjectUrl>https://github.com/yangzhongke/Zack.CameraLib</PackageProjectUrl>
     <RepositoryUrl>https://github.com/yangzhongke/Zack.CameraLib</RepositoryUrl>
     <Authors>Zack Yang(杨中科)</Authors>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,7 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="DirectShowLib.Standard" Version="2.1.0" />
-    <PackageReference Include="SharpDX.MediaFoundation" Version="4.2.0" />
   </ItemGroup>
 
 </Project>

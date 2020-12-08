@@ -15,7 +15,7 @@ namespace Zack.WinFormCoreCameraPlayer
         private Thread threadFetchFrame;
         public PlayerStatus Status { get; private set; } =PlayerStatus.NotStarted;
         private System.Windows.Forms.Timer repaintTimer = new System.Windows.Forms.Timer();
-        private Func<Mat, Mat> frameFilterFunc;
+        public Func<Mat, Mat> FrameFilterFunc { get; private set; }
 
         private int _framePerSecond = 10;
         public int FramePerSecond 
@@ -38,16 +38,11 @@ namespace Zack.WinFormCoreCameraPlayer
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw |
                 ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
-
-            //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
-            this.repaintTimer.Tick += (se, e) => { this.Invalidate(); };
-            this.repaintTimer.Interval = _framePerSecond;
-            this.repaintTimer.Start();
         }
 
         public void SetFrameFilter(Func<Mat, Mat> frameFilterFunc)
         {
-            this.frameFilterFunc = frameFilterFunc;
+            this.FrameFilterFunc = frameFilterFunc;
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) 
@@ -65,9 +60,9 @@ namespace Zack.WinFormCoreCameraPlayer
                 lock (syncLock)
                 {
                     var newFrameMat = this.frameMat;
-                    if (this.frameFilterFunc != null)
+                    if (this.FrameFilterFunc != null)
                     {
-                        newFrameMat = this.frameFilterFunc(newFrameMat);
+                        newFrameMat = this.FrameFilterFunc(newFrameMat);
                     }
                     bitmap = BitmapConverter.ToBitmap(newFrameMat);
                     //dispose the Mat that frameFilterFunc returns
@@ -99,7 +94,12 @@ namespace Zack.WinFormCoreCameraPlayer
             {
                 throw new InvalidOperationException("Current Status is not NotStarted");
             }
-            
+
+            //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
+            this.repaintTimer.Tick += (se, e) => { this.Invalidate(); };
+            this.repaintTimer.Interval = _framePerSecond;
+            this.repaintTimer.Start();
+
             var hwnd = this.Handle;
             this.threadFetchFrame = new Thread(() => {
                 //the 2nd parameter is needed, or the constructor will cost a lot of time.
@@ -143,6 +143,7 @@ namespace Zack.WinFormCoreCameraPlayer
             {
                 throw new InvalidOperationException("Not started");
             }
+            this.repaintTimer.Stop();
             this.Status = PlayerStatus.Stopping;
         }
 
@@ -159,7 +160,11 @@ namespace Zack.WinFormCoreCameraPlayer
             this.Status = PlayerStatus.Stopping;
             base.Dispose(disposing);            
             this.repaintTimer.Dispose();
-            this.frameMat.Dispose();
+            //prevent AccessViolationException on exit
+            lock (syncLock)
+            {
+                this.frameMat.Dispose();
+            }                
         }
     }
 }

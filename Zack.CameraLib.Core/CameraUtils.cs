@@ -1,9 +1,8 @@
 ﻿using DirectShowLib;
-using SharpDX.MediaFoundation;
-using SharpDX.Multimedia;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Zack.CameraLib.Core
 {
@@ -13,101 +12,59 @@ namespace Zack.CameraLib.Core
         {
             DsDevice[] capDevicesDS = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
             return capDevicesDS.Select((d,index)=>new CameraInfo { FriendlyName=d.Name,Index=index,
-                VideoCapabilities=EnumerateSupportedFormats(index).ToArray()}).ToArray();
+                VideoCapabilities= GetAllAvailableResolution(d).ToArray()}).ToArray();
         }
 
-        public static IEnumerable<VideoCapabilities> EnumerateSupportedFormats(int deviceIndex)
+        private static IEnumerable<VideoCapabilities> GetAllAvailableResolution(DsDevice vidDev)
         {
-            var devices = EnumerateVideoDevices();
-            if (deviceIndex < devices.Length)
+            //I used to use SharpDX.MediaFoundation to enumerate all camera and its supported resolution
+            //however, according to https://stackoverflow.com/questions/24612174/mediafoundation-can%C2%B4t-find-video-capture-emulator-driver-but-directshow-does,
+            //MediaFoundation cannot find virtual camera, so I turned to use IPin.EnumMediaTypes to fetch supported resolution
+            //https://stackoverflow.com/questions/20414099/videocamera-get-supported-resolutions
+            int hr, bitCount = 0;
+
+            IBaseFilter sourceFilter;
+
+            var m_FilterGraph2 = new FilterGraph() as IFilterGraph2;
+            hr = m_FilterGraph2.AddSourceFilterForMoniker(vidDev.Mon, null, vidDev.Name, out sourceFilter);
+            DsError.ThrowExceptionForHR(hr);
+            var pRaw2 = DsFindPin.ByCategory(sourceFilter, PinCategory.Capture, 0);
+            var availableResolutions = new List<VideoCapabilities>();
+
+            VideoInfoHeader v = new VideoInfoHeader();
+            IEnumMediaTypes mediaTypeEnum;
+            hr = pRaw2.EnumMediaTypes(out mediaTypeEnum);
+            DsError.ThrowExceptionForHR(hr);
+
+            AMMediaType[] mediaTypes = new AMMediaType[1];
+            IntPtr fetched = IntPtr.Zero;
+            hr = mediaTypeEnum.Next(1, mediaTypes, fetched);
+            DsError.ThrowExceptionForHR(hr);
+
+            while (fetched != null && mediaTypes[0] != null)
             {
-                var device = devices[deviceIndex];
-                var mediaSource = device.ActivateObject<MediaSource>();
-                mediaSource.CreatePresentationDescriptor(out PresentationDescriptor descriptor);
-                var streamDescriptor = descriptor.GetStreamDescriptorByIndex(0, out SharpDX.Mathematics.Interop.RawBool _);
-                var handler = streamDescriptor.MediaTypeHandler;
-                for (int i = 0; i < handler.MediaTypeCount; i++)
+                Marshal.PtrToStructure(mediaTypes[0].formatPtr, v);
+                if (v.BmiHeader.Size != 0 && v.BmiHeader.BitCount != 0)
                 {
-                    var mediaType = handler.GetMediaTypeByIndex(i);
-                    if (mediaType.MajorType == MediaTypeGuids.Video)
+                    if (v.BmiHeader.BitCount > bitCount)
                     {
-                        var frameRate = ParseFrameRate(mediaType.Get(MediaTypeAttributeKeys.FrameRate));
-                        ParseSize(mediaType.Get(MediaTypeAttributeKeys.FrameSize), out int width, out int height);
-
-                        var format = GetVideoFormat(mediaType);
-
-                        yield return new VideoCapabilities() { Width = width, Height = height, 
-                            FrameRate = frameRate, VideoFormat = format };
+                        availableResolutions.Clear();
+                        bitCount = v.BmiHeader.BitCount;
                     }
+
+                    VideoCapabilities cap = new VideoCapabilities();
+                    cap.Height = v.BmiHeader.Height;
+                    cap.Width = v.BmiHeader.Width;
+                    //the unit of AvgTimePerFrame is 100 nanoseconds,
+                    //and 10^9 nanosenconds = 1 second
+                    cap.FrameRate = (int)(1000_000_000/100/v.AvgTimePerFrame);
+                    cap.BitRate = v.BitRate;
+                    availableResolutions.Add(cap);
                 }
+                hr = mediaTypeEnum.Next(1, mediaTypes, fetched);
+                DsError.ThrowExceptionForHR(hr);
             }
-            else
-            {
-                throw new IndexOutOfRangeException();
-            }
-        }
-
-        public static Activate[] EnumerateVideoDevices()
-        {
-            var attributes = new MediaAttributes();
-            MediaFactory.CreateAttributes(attributes, 1);
-            attributes.Set(CaptureDeviceAttributeKeys.SourceType, CaptureDeviceAttributeKeys.SourceTypeVideoCapture.Guid);
-            var mediaFoundationActivates = DXHelper.EnumDeviceSources(attributes);
-            Activate[] result = new Activate[mediaFoundationActivates.Length];
-            Dictionary<string, int[]> order = new Dictionary<string, int[]>();
-
-            DsDevice[] capDevicesDS;
-            capDevicesDS = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
-
-            //tries to match the order of the found devices in DirectShow and MediaFoundation
-            for (int i = 0; i < mediaFoundationActivates.Length; i++)
-            {
-                var friendlyName = mediaFoundationActivates[i].Get(CaptureDeviceAttributeKeys.FriendlyName);
-                var suffix = ""; //used to handle multiple devices listed with the same name
-                var counter = 1;
-                for (int j = 0; j < capDevicesDS.Length; j++)
-                {
-                    var friendlyNameDS = capDevicesDS[j].Name + suffix;
-                    if (friendlyName + suffix == friendlyNameDS)
-                    {
-                        if (!order.ContainsKey(friendlyName + suffix))
-                        {
-                            order.Add(friendlyName + suffix, new int[] { i, j });
-                            result[j] = mediaFoundationActivates[i];
-                            suffix = "";
-                            break;
-                        }
-                        else
-                        {
-                            suffix = counter++.ToString();
-                            continue;
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
-        private static void ParseSize(long value, out int width, out int height)
-        {
-            width = (int)(value >> 32);
-            height = (int)(value & 0x00000000FFFFFFFF);
-        }
-
-        private static int ParseFrameRate(long value)
-        {
-            var numerator = (int)(value >> 32);
-            var denominator = (int)(value & 0x00000000FFFFFFFF);
-            return (numerator * 100 / denominator) / 100;
-        }
-
-        private static string GetVideoFormat(SharpDX.MediaFoundation.MediaType mediaType)
-        {
-            // https://docs.microsoft.com/en-us/windows/desktop/medfound/video-subtype-guids
-            var subTypeId = mediaType.Get(MediaTypeAttributeKeys.Subtype);
-            var fourccEncoded = BitConverter.ToInt32(subTypeId.ToByteArray(), 0);
-            var fourcc = new FourCC(fourccEncoded);
-            return fourcc.ToString();
+            return availableResolutions;
         }
     }
 }

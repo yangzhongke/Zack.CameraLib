@@ -2,7 +2,7 @@
 It supports .NET Standard 2.0( and above), so it supports .NET Core 3.1 (and above) and .NET framework(above 4.6.1).
 
 # Zack.CameraLib.Core
-Used for listing connected cameras.
+Used for listing connected cameras(Windows-Only currently).
 
 Step 1:
 
@@ -18,7 +18,7 @@ foreach(CameraInfo camera in cameras)
 	Console.WriteLine(camera.FriendlyName+","+camera.Index);
 	foreach(VideoCapabilities v in camera.VideoCapabilities)
 	{
-		Console.WriteLine($"{v.FrameRate},{v.Height},{v.Width},{v.VideoFormat}");
+		Console.WriteLine($"{v.FrameRate},{v.Height},{v.Width},{v.BitRate},{v.FrameRate}");
 	}
 }
 ```
