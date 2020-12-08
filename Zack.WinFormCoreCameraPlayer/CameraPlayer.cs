@@ -146,7 +146,7 @@ namespace Zack.WinFormCoreCameraPlayer
             this.Status = PlayerStatus.Stopping;
         }
 
-        public async Task WaitForStop()
+        public async Task WaitForStopAsync()
         {
             while(this.Status!= PlayerStatus.Stopped)
             {

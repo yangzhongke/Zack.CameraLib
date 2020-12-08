@@ -33,7 +33,7 @@ namespace WinFormCoreDemo1
         private async void Player_Click(object sender, EventArgs e)
         {
             player.SignalToStop();
-            await player.WaitForStop();
+            await player.WaitForStopAsync();
             player.Start(0, new System.Drawing.Size(500, 500));
         }
 
