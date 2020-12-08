@@ -90,9 +90,9 @@ namespace Zack.WinFormCoreCameraPlayer
 
         public void Start(int deviceIndex,System.Drawing.Size frameSize)
         {
-            if(Status!= PlayerStatus.NotStarted)
+            if(Status!= PlayerStatus.NotStarted&& Status != PlayerStatus.Stopped)
             {
-                throw new InvalidOperationException("Current Status is not NotStarted");
+                throw new InvalidOperationException("Current Status is neither  NotStarted nor Stopped");
             }
 
             //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
