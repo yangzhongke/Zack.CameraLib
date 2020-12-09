@@ -36,7 +36,7 @@ namespace Zack.WinFormCoreCameraPlayer
         public CameraPlayer()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw |
-                ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
+             ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
         }
 
         public void SetFrameFilter(Func<Mat, Mat> frameFilterFunc)
@@ -61,7 +61,16 @@ namespace Zack.WinFormCoreCameraPlayer
                     var newFrameMat = this.frameMat;
                     if (this.FrameFilterFunc != null)
                     {
+                        var srcMat = newFrameMat;
                         newFrameMat = this.FrameFilterFunc(newFrameMat);
+                        if(srcMat.IsDisposed)
+                        {
+                            throw new InvalidOperationException("Don't dispose the parameter 'Mat srMat' passed to FrameFilterFunc. We will dispose it later.");
+                        }
+                        if(newFrameMat.IsDisposed)
+                        {
+                            throw new InvalidOperationException("Don't dispose the Mat that FrameFilterFunc returned. We will dispose it later.");
+                        }
                     }
                     bitmap = BitmapConverter.ToBitmap(newFrameMat);
                     //dispose the Mat that frameFilterFunc returns
@@ -72,17 +81,18 @@ namespace Zack.WinFormCoreCameraPlayer
                 }
                 using (bitmap)
                 {
+
                     //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
                     var oldCompositingMode = e.Graphics.CompositingMode;
                     //improve performance
-                    e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;                    
+                    e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;   
                     e.Graphics.DrawImage(bitmap, this.ClientRectangle);
                     e.Graphics.CompositingMode = oldCompositingMode;
                 }
             }
             else
             {
-                e.Graphics.Clear(Color.Black);
+                //e.Graphics.Clear(Color.Transparent);
                 e.Graphics.DrawString(this.Status.ToString(), this.Font, Brushes.White, new PointF(0, 0));
             }
         }
@@ -118,9 +128,9 @@ namespace Zack.WinFormCoreCameraPlayer
                             if (!Win32.IsWindowPall(hwnd))
                             {
                                 camera.Read(frameMat);
-                                //if the size of Mat is bigger than the size of player,
+                                //if the size of Mat is bigger enough(20%) than the size of player,
                                 //shrink the Mat to the size of player, so that it's more performant
-                                if (frameMat.Width > ClientSize.Width && frameMat.Height > ClientSize.Height)
+                                if (frameMat.Width > ClientSize.Width*1.2 && frameMat.Height > ClientSize.Height * 1.2)
                                 {
                                     var newMat = frameMat.Resize(new OpenCvSharp.Size(ClientSize.Width, ClientSize.Height));
                                     frameMat.Dispose();

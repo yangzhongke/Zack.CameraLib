@@ -103,19 +103,19 @@
     </Compile>
     <Compile Include="..\WinFormCoreDemo1\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>	
+    </Compile>
     <EmbeddedResource Include="..\WinFormCoreDemo1\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>		
+    </EmbeddedResource>
     <Compile Include="..\WinFormCoreDemo1\FormSelectCamera.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="..\WinFormCoreDemo1\FormSelectCamera.Designer.cs">
       <DependentUpon>FormSelectCamera.cs</DependentUpon>
-    </Compile>	
+    </Compile>
     <EmbeddedResource Include="..\WinFormCoreDemo1\FormSelectCamera.resx">
       <DependentUpon>FormSelectCamera.cs</DependentUpon>
-    </EmbeddedResource>		
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

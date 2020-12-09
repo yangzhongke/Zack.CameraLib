@@ -16,31 +16,9 @@ namespace WinFormCoreDemo1
             this.player.Dock = DockStyle.Fill;
             this.player.Location = new System.Drawing.Point(0, 0);
             this.Controls.Add(this.player);
-            this.player.Click += Player_Click;
-
-            this.player.Click += (s, e) => {
-                if(this.player.FrameFilterFunc==null)
-                {
-                    this.player.SetFrameFilter(BeautyIt);
-                }
-                else
-                {
-                    this.player.SetFrameFilter(null);
-                }
-            };
+            this.player.SetFrameFilter(BeautyIt);
         }
 
-        private async void Player_Click(object sender, EventArgs e)
-        {
-            player.SignalToStop();
-            await player.WaitForStopAsync();
-            player.Start(0, new System.Drawing.Size(500, 500));
-        }
-
-        private Mat zeros_like(Mat mat)
-        {
-            return new Mat(mat.Rows, mat.Cols, MatType.CV_8U, Scalar.All(0));
-        }
 
         private Mat BeautyIt(Mat srcMat)
         {
