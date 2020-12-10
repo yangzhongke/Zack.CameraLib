@@ -81,7 +81,6 @@ namespace Zack.WinFormCoreCameraPlayer
                 }
                 using (bitmap)
                 {
-
                     //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
                     var oldCompositingMode = e.Graphics.CompositingMode;
                     //improve performance
@@ -92,7 +91,7 @@ namespace Zack.WinFormCoreCameraPlayer
             }
             else
             {
-                //e.Graphics.Clear(Color.Transparent);
+                e.Graphics.Clear(Color.Black);
                 e.Graphics.DrawString(this.Status.ToString(), this.Font, Brushes.White, new PointF(0, 0));
             }
         }
@@ -105,7 +104,9 @@ namespace Zack.WinFormCoreCameraPlayer
             }
 
             //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
-            this.repaintTimer.Tick += (se, e) => { this.Invalidate(); };
+            this.repaintTimer.Tick += (se, e) => { 
+                this.Invalidate(); 
+            };
             this.repaintTimer.Interval = _framePerSecond;
             this.repaintTimer.Start();
 
@@ -124,15 +125,21 @@ namespace Zack.WinFormCoreCameraPlayer
                             return;
                         lock (syncLock)
                         {
+                            int clientWidth = ClientSize.Width;
+                            int clientHeight = ClientSize.Height;
+                            if(clientWidth<=0||clientHeight<=0)
+                            {
+                                continue;
+                            }
                             //if this control is not visible, stop the fetch frame, so that it can reduce the pressure on CPU
                             if (!Win32.IsWindowPall(hwnd))
                             {
                                 camera.Read(frameMat);
                                 //if the size of Mat is bigger enough(20%) than the size of player,
                                 //shrink the Mat to the size of player, so that it's more performant
-                                if (frameMat.Width > ClientSize.Width*1.2 && frameMat.Height > ClientSize.Height * 1.2)
+                                if (frameMat.Width > clientWidth * 1.2 && frameMat.Height > clientHeight * 1.2)
                                 {
-                                    var newMat = frameMat.Resize(new OpenCvSharp.Size(ClientSize.Width, ClientSize.Height));
+                                    var newMat = frameMat.Resize(new OpenCvSharp.Size(clientWidth, clientHeight));
                                     frameMat.Dispose();
                                     this.frameMat = newMat;
                                 }
