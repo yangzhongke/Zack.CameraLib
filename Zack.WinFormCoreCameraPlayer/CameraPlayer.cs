@@ -126,17 +126,17 @@ namespace Zack.WinFormCoreCameraPlayer
                     Thread.Sleep(10);
                     continue;
                 }
+                int clientWidth = ClientSize.Width;
+                int clientHeight = ClientSize.Height;
+                if (clientWidth <= 0 || clientHeight <= 0)
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
                 lock (syncLock)
                 {
                     if (IsDisposed || Disposing)
                         break;
-                    int clientWidth = ClientSize.Width;
-                    int clientHeight = ClientSize.Height;
-                    if (clientWidth <= 0 || clientHeight <= 0)
-                    {
-                        Thread.Sleep(10);
-                        continue;
-                    }
                     camera.Read(frameMat);
                 }
                 Thread.Sleep(1000 / 60);//reduce CPU pressure.
