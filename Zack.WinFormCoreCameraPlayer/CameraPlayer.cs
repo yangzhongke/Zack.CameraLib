@@ -14,7 +14,7 @@ namespace Zack.WinFormCoreCameraPlayer
         private object syncLock = new object();
         public PlayerStatus Status { get; private set; } =PlayerStatus.NotStarted;
         private System.Windows.Forms.Timer repaintTimer = new System.Windows.Forms.Timer();
-        public Func<Mat, Mat> FrameFilterFunc { get; private set; }
+        public Action<Mat> FrameFilterFunc { get; private set; }
 
         private int _framePerSecond = 10;
         public int FramePerSecond 
@@ -39,7 +39,7 @@ namespace Zack.WinFormCoreCameraPlayer
              ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
         }
 
-        public void SetFrameFilter(Func<Mat, Mat> frameFilterFunc)
+        public void SetFrameFilter(Action<Mat> frameFilterFunc)
         {
             this.FrameFilterFunc = frameFilterFunc;
         }
@@ -54,37 +54,26 @@ namespace Zack.WinFormCoreCameraPlayer
         {
             if(this.Status== PlayerStatus.Started)
             {
-                if (frameMat.Width <= 0) return;
+                if (frameMat.Width <= 0||frameMat.Height<=0) return;
                 Bitmap bitmap;
                 lock (syncLock)
                 {
-                    var newFrameMat = this.frameMat;
                     if (this.FrameFilterFunc != null)
                     {
-                        var srcMat = newFrameMat;
-                        newFrameMat = this.FrameFilterFunc(newFrameMat);
-                        if(srcMat.IsDisposed)
+                        this.FrameFilterFunc(frameMat);
+                        if (frameMat.IsDisposed)
                         {
-                            throw new InvalidOperationException("Don't dispose the parameter 'Mat srMat' passed to FrameFilterFunc. We will dispose it later.");
-                        }
-                        if(newFrameMat.IsDisposed)
-                        {
-                            throw new InvalidOperationException("Don't dispose the Mat that FrameFilterFunc returned. We will dispose it later.");
+                            throw new InvalidOperationException("Don't dispose the Mat parameter passed to FrameFilterFunc. We will dispose it later.");
                         }
                     }
-                    bitmap = BitmapConverter.ToBitmap(newFrameMat);
-                    //dispose the Mat that frameFilterFunc returns
-                    if (newFrameMat != this.frameMat)
-                    {
-                        newFrameMat.Dispose();
-                    }
+                    bitmap = BitmapConverter.ToBitmap(frameMat);
                 }
                 using (bitmap)
                 {
                     //https://stackoverflow.com/questions/11020710/is-graphics-drawimage-too-slow-for-bigger-images
                     var oldCompositingMode = e.Graphics.CompositingMode;
                     //improve performance
-                    e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;   
+                    e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
                     e.Graphics.DrawImage(bitmap, this.ClientRectangle);
                     e.Graphics.CompositingMode = oldCompositingMode;
                 }
@@ -110,47 +99,48 @@ namespace Zack.WinFormCoreCameraPlayer
             this.repaintTimer.Interval = _framePerSecond;
             this.repaintTimer.Start();
 
-            var hwnd = this.Handle;
             var threadFetchFrame = new Thread(() => {
                 //the 2nd parameter is needed, or the constructor will cost a lot of time.
                 using (VideoCapture camera = new VideoCapture(deviceIndex, VideoCaptureAPIs.DSHOW))
                 {
                     camera.FrameWidth = frameSize.Width;
                     camera.FrameHeight = frameSize.Height;
-
-                    this.Status = PlayerStatus.Started;
-                    while (this.Status == PlayerStatus.Started)
-                    {
-                        if (IsDisposed || Disposing)
-                            return;
-                        lock (syncLock)
-                        {
-                            int clientWidth = ClientSize.Width;
-                            int clientHeight = ClientSize.Height;
-                            if(clientWidth<=0||clientHeight<=0)
-                            {
-                                continue;
-                            }
-                            //if this control is not visible, stop the fetch frame, so that it can reduce the pressure on CPU
-                            if (!Win32.IsWindowPall(hwnd))
-                            {
-                                camera.Read(frameMat);
-                                //if the size of Mat is bigger enough(20%) than the size of player,
-                                //shrink the Mat to the size of player, so that it's more performant
-                                if (frameMat.Width > clientWidth * 1.2 && frameMat.Height > clientHeight * 1.2)
-                                {
-                                    var newMat = frameMat.Resize(new OpenCvSharp.Size(clientWidth, clientHeight));
-                                    frameMat.Dispose();
-                                    this.frameMat = newMat;
-                                }
-                            }
-                        }
-                        Thread.Sleep(1000 / 60);//reduce CPU pressure.
-                    }                    
+                    fetchFrameLoop(camera);
                 }
                 this.Status = PlayerStatus.Stopped;
             });
             threadFetchFrame.Start();
+        }
+
+        private void fetchFrameLoop(VideoCapture camera)
+        {
+            this.Status = PlayerStatus.Started;
+            while (this.Status == PlayerStatus.Started)
+            {
+                if (IsDisposed || Disposing)
+                    break;
+                //if this control is not visible, stop the fetch frame, so that it can reduce the pressure on CPU
+                //if (!Win32.IsWindowPall(hwnd))
+                if (!this.Visible)
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
+                lock (syncLock)
+                {
+                    if (IsDisposed || Disposing)
+                        break;
+                    int clientWidth = ClientSize.Width;
+                    int clientHeight = ClientSize.Height;
+                    if (clientWidth <= 0 || clientHeight <= 0)
+                    {
+                        Thread.Sleep(10);
+                        continue;
+                    }
+                    camera.Read(frameMat);
+                }
+                Thread.Sleep(1000 / 60);//reduce CPU pressure.
+            }
         }
 
         public void SignalToStop()
@@ -172,15 +162,15 @@ namespace Zack.WinFormCoreCameraPlayer
         }
 
         protected override void Dispose(bool disposing)
-        {
+        {            
+            base.Dispose(disposing);
             this.Status = PlayerStatus.Stopping;
-            base.Dispose(disposing);            
-            this.repaintTimer.Dispose();
             //prevent AccessViolationException on exit
             lock (syncLock)
             {
                 this.frameMat.Dispose();
-            }                
+            }
+            this.repaintTimer.Dispose();
         }
     }
 }

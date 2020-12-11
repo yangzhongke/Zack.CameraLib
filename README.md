@@ -66,9 +66,7 @@ Sample code:
 
 ```csharp
 cameraPlayer.SetFrameFilter(srcMat=> {
-	var dest = new Mat();
-	Cv2.BilateralFilter(srcMat, dest, 10, 60, 60);
-	return dest;
+	Cv2.Blur(srcMat, srcMat, new Size(10, 10));
 });
 ```
 
