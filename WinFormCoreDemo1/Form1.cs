@@ -13,7 +13,7 @@ namespace WinFormCoreDemo1
             InitializeComponent();
 
             this.player = new CameraPlayer();
-            this.player.FramePerSecond = 30;
+            this.player.FramePerSecond = 20;
             this.player.Dock = DockStyle.Fill;
             this.player.Location = new System.Drawing.Point(0, 0);
             this.Controls.Add(this.player);
