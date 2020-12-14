@@ -14,7 +14,7 @@ namespace Zack.WinFormCoreCameraPlayer
         private Bitmap frameBitmap;
         private object syncLock = new object();
         public PlayerStatus Status { get; private set; } = PlayerStatus.NotStarted;
-        public Action<Mat> FrameFilterFunc { get; private set; }
+        public Action<Mat> frameFilterFunc { get; private set; }
 
         private int _framePerSecond = 20;
         public int FramePerSecond
@@ -40,7 +40,7 @@ namespace Zack.WinFormCoreCameraPlayer
 
         public void SetFrameFilter(Action<Mat> frameFilterFunc)
         {
-            this.FrameFilterFunc = frameFilterFunc;
+            this.frameFilterFunc = frameFilterFunc;
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -110,11 +110,13 @@ namespace Zack.WinFormCoreCameraPlayer
             threadFetchFrame.Start();
         }
 
+        
+
         private void ProcessFrame(Mat frameMat)
         {
-            if (this.FrameFilterFunc != null)
+            if (this.frameFilterFunc != null)
             {
-                this.FrameFilterFunc(frameMat);
+                this.frameFilterFunc(frameMat);
                 if (frameMat.IsDisposed)
                 {
                     throw new InvalidOperationException("Don't dispose the Mat parameter passed to FrameFilterFunc. We will dispose it later.");
@@ -154,6 +156,11 @@ namespace Zack.WinFormCoreCameraPlayer
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 Mat frameMat = new Mat();
                 if (!camera.Read(frameMat))
+                {
+                    frameMat.Dispose();
+                    continue;
+                }
+                if(frameMat.Empty())
                 {
                     frameMat.Dispose();
                     continue;

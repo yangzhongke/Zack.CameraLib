@@ -1,5 +1,6 @@
 ﻿using OpenCvSharp;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Zack.WinFormCoreCameraPlayer;
 
@@ -18,8 +19,22 @@ namespace WinFormCoreDemo1
             this.player.Location = new System.Drawing.Point(0, 0);
             this.Controls.Add(this.player);
             this.player.SetFrameFilter(BeautyIt);
+            this.player.Click += Player_Click;
+            this.FormClosed += Form1_FormClosed;
         }
 
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.player.Dispose();
+        }
+
+        private async void Player_Click(object sender, EventArgs e)
+        {
+            this.player.SignalToStop();
+            await this.player.WaitForStopAsync();
+            await Task.Delay(100);
+            this.player.Start(3, this.ClientSize);
+        }
 
         private void BeautyIt(Mat srcMat)
         {
