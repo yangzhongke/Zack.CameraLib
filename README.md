@@ -24,7 +24,7 @@ foreach(CameraInfo camera in cameras)
 ```
 
 # Zack.WinFormCoreCameraPlayer
-A control used for displaying video of camera.
+A .NET Core WinForm control used for displaying video of camera.
 Sample code of WinForm for .NET Core.
 
 Step 1:
@@ -49,7 +49,6 @@ Due to a possible bug of Visual Studio, a CameraPlayer instance in the Initializ
 			this.player.Location = new System.Drawing.Point(0, 0);
             this.player.Dock = DockStyle.Fill;
             this.Controls.Add(this.player);
-            this.player.Click += Player_Click;
 		}
 ```
 
@@ -58,9 +57,9 @@ Step 3:
 cameraPlayer.Start(0, new System.Drawing.Size(1024, 768));
 ```
 
-The first parameter of Start is the index of selected camera.
+The first parameter of Start is the index of selected camera. All the connected cameras can be listed using CameraUtils.ListCameras() of Zack.CameraLib.Core mentioned above.
 
-If set a filter using SetFrameFilter(), the Image can be processed before the Mat is rendered. OpenCVSharp can be used to process the Mat.
+If a filter is set using the method SetFrameFilter() of CameraPlayer, the Image can be processed before the Mat is rendered. OpenCVSharp can be used to process the Mat.
 
 Sample code:
 
@@ -75,7 +74,7 @@ WinFormCoreDemo1 is the sample project.
 # Zack.WinFormCameraPlayer
 This is the .NET framework version of Zack.WinFormCoreCameraPlayer.
 
-All the code of this .NET framework version is the same as the .NET core version. The only difference is the NuGet package name is Zack.WinFormCameraPlayer
+All the code of this .NET framework version is the same as the .NET core version, so they won't be covered here. The only difference is the NuGet package name is Zack.WinFormCameraPlayer
 
 WinFormDemo1 is the sample project.
 
