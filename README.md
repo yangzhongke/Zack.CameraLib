@@ -1,3 +1,4 @@
+[中文版文档(Chinese version)](https://github.com/yangzhongke/Zack.CameraLib/blob/main/README_CN.md)
 
 It supports .NET Standard 2.0( and above), so it supports .NET Core 3.1 (and above) and .NET framework(above 4.6.1).
 
