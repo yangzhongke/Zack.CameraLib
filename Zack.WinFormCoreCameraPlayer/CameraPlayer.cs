@@ -18,6 +18,14 @@ namespace Zack.WinFormCoreCameraPlayer
             headlessPlayer.NewFrameReceived += this.BeginInvalidate;
         }
 
+        public PlayerStatus Status
+        {
+            get
+            {
+                return this.headlessPlayer.Status;
+            }
+        }
+
         public void SetFrameFilter(Action<Mat> frameFilterFunc)
         {
             headlessPlayer.SetFrameFilter(frameFilterFunc);
