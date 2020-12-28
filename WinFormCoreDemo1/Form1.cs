@@ -1,4 +1,5 @@
 ﻿using OpenCvSharp;
+using OpenCvSharp.Util;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -36,9 +37,24 @@ namespace WinFormCoreDemo1
             this.player.Start(3, this.ClientSize);
         }
 
-        private void BeautyIt(Mat srcMat)
+        private unsafe void BeautyIt(Mat srcMat)
         {
             Cv2.Blur(srcMat, srcMat, new Size(10, 10));
+            /*
+            using Mat matAlpha = new Mat(srcMat.Size(), MatType.CV_8UC1, new Scalar(1));
+            AddAlphaChannel(srcMat, srcMat, matAlpha);*/
+        }
+
+        public static void AddAlphaChannel(Mat src, Mat dst, Mat alpha)
+        {
+            /*
+            using (ResourceTracker t = new ResourceTracker())
+            {
+                //split is used for splitting the channels separately
+                var bgr = t.T(Cv2.Split(src));
+                var bgra = new[] { bgr[0], bgr[1], bgr[2], alpha };
+                Cv2.Merge(bgra, dst);
+            }*/
         }
 
         private void Form1_Load(object sender, EventArgs e)
