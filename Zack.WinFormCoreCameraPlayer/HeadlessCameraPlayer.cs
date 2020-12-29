@@ -10,10 +10,7 @@ namespace Zack.WinFormCoreCameraPlayer
 {
     public class HeadlessCameraPlayer : IDisposable
     {
-        public Bitmap CurrentFrame { get; private set; }
-        public event Action NewFrameReceived;
-
-        private object syncLock = new object();
+        public event Action<Bitmap> NewFrameReceived;
         public PlayerStatus Status { get; private set; } = PlayerStatus.NotStarted;
         public Action<Mat> frameFilterFunc { get; private set; }
 
@@ -45,14 +42,6 @@ namespace Zack.WinFormCoreCameraPlayer
         {
             IsDisposing = true;
             this.Status = PlayerStatus.Stopping;
-            //prevent AccessViolationException on exit
-            lock (syncLock)
-            {
-                if (this.CurrentFrame != null)
-                {
-                    this.CurrentFrame.Dispose();
-                }
-            }
             IsDisposed = true;
         }
 
@@ -93,18 +82,13 @@ namespace Zack.WinFormCoreCameraPlayer
                     throw new InvalidOperationException("Don't dispose the Mat parameter passed to FrameFilterFunc. We will dispose it later.");
                 }
             }
-            lock (syncLock)
+            using (var frame = BitmapConverter.ToBitmap(frameMat))
             {
-                if (this.CurrentFrame != null)
+                if (NewFrameReceived != null)
                 {
-                    this.CurrentFrame.Dispose();
+                    this.NewFrameReceived(frame);
                 }
-                this.CurrentFrame = BitmapConverter.ToBitmap(frameMat);
-            }
-            if(NewFrameReceived!=null)
-            {
-                this.NewFrameReceived();
-            }
+            }                
         }
 
         private void fetchFrameLoop(VideoCapture camera)
