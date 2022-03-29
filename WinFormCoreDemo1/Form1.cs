@@ -1,5 +1,4 @@
 ﻿using OpenCvSharp;
-using OpenCvSharp.Util;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;

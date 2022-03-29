@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zack.CameraLib.Core", "Zack.CameraLib.Core\Zack.CameraLib.Core.csproj", "{46149325-8420-4CE2-981C-1ED1C8E688DC}"
 EndProject
@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormCoreDemo1", "WinForm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zack.WinFormCoreCameraPlayer", "Zack.WinFormCoreCameraPlayer\Zack.WinFormCoreCameraPlayer.csproj", "{8DFD116B-ECD1-4A28-97EF-AF082756BFF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormDemo1", "WinFormDemo1\WinFormDemo1.csproj", "{C45F6A8E-0F67-4F78-860E-326FE6916D7C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zack.WinFormCameraPlayer", "Zack.WinFormCameraPlayer\Zack.WinFormCameraPlayer.csproj", "{6BCC3A2C-9776-48E1-A163-E8F021A072BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormDemo1", "WinFormDemo1\WinFormDemo1.csproj", "{C45F6A8E-0F67-4F78-860E-326FE6916D7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +31,14 @@ Global
 		{8DFD116B-ECD1-4A28-97EF-AF082756BFF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DFD116B-ECD1-4A28-97EF-AF082756BFF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DFD116B-ECD1-4A28-97EF-AF082756BFF3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6BCC3A2C-9776-48E1-A163-E8F021A072BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6BCC3A2C-9776-48E1-A163-E8F021A072BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BCC3A2C-9776-48E1-A163-E8F021A072BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BCC3A2C-9776-48E1-A163-E8F021A072BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C45F6A8E-0F67-4F78-860E-326FE6916D7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
