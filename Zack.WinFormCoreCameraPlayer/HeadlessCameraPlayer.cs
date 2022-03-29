@@ -90,7 +90,7 @@ namespace Zack.WinFormCoreCameraPlayer
                 }
             }                
         }
-
+        /*
         private void fetchFrameLoop(VideoCapture camera)
         {
             this.Status = PlayerStatus.Started;
@@ -123,6 +123,35 @@ namespace Zack.WinFormCoreCameraPlayer
                     ProcessFrame(mat);
                     mat.Dispose();
                 }, frameMat);
+            }
+        }*/
+        private void fetchFrameLoop(VideoCapture camera)
+        {
+            this.Status = PlayerStatus.Started;
+            using Mat frameMat = new Mat();
+            while (this.Status == PlayerStatus.Started)
+            {                
+                if (IsDisposed || IsDisposing)
+                {
+                    Thread.Sleep(10);
+                    break;
+                }                    
+                Stopwatch stopwatch = Stopwatch.StartNew();                
+                if (!camera.Read(frameMat))
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
+                if (frameMat.Empty())
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
+                ProcessFrame(frameMat);
+                //To order to archieve the required FPS, calc the millseconds to sleep.
+                //if there is no left time to sleep, just sleep 1 ms.
+                int msToSleep = Math.Max(1, 1000 / FramePerSecond - (int)stopwatch.ElapsedMilliseconds);
+                Thread.Sleep(msToSleep);                
             }
         }
 

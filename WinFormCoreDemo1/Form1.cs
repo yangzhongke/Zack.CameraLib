@@ -19,7 +19,7 @@ namespace WinFormCoreDemo1
             this.player.Dock = DockStyle.Fill;
             this.player.Location = new System.Drawing.Point(0, 0);
             this.Controls.Add(this.player);
-            this.player.SetFrameFilter(BeautyIt);
+            //this.player.SetFrameFilter(BeautyIt);
             this.player.Click += Player_Click;
             this.FormClosed += Form1_FormClosed;
         }
