@@ -14,6 +14,8 @@ namespace Zack.WinFormCoreCameraPlayer
         public PlayerStatus Status { get; private set; } = PlayerStatus.NotStarted;
         public Action<Mat> frameFilterFunc { get; private set; }
 
+        public VideoCapture VideoCapture { get;private set;}
+
         private int _framePerSecond = 20;
         public int FramePerSecond
         {
@@ -54,11 +56,12 @@ namespace Zack.WinFormCoreCameraPlayer
             var threadFetchFrame = new Thread(() =>
             {
                 //the 2nd parameter is needed, or the constructor will cost a lot of time.
-                //MSMF can help a very low overhead of readding frame(5ms-20ms), however, it takes minutes to start
+                //MSMF can help a very low overhead of reading frame(5ms-20ms), however, it takes minutes to start
                 //the VideoCapture instance using my Logitech C920 webcamera.
                 //Therefore, I turned to DShow+"MJPG", as a result, the reading of a frame takes about 50ms.
-                using (VideoCapture camera = new VideoCapture(deviceIndex, VideoCaptureAPIs.DSHOW))
+                using (VideoCapture camera = new VideoCapture(deviceIndex, VideoCaptureAPIs.MSMF))
                 {
+                    this.VideoCapture = camera;
                     camera.BufferSize = 3;
                     camera.FrameWidth = frameSize.Width;
                     camera.FrameHeight = frameSize.Height;

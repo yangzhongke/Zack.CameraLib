@@ -10,14 +10,14 @@ namespace Zack.WinFormCoreCameraPlayer
     {
         private Bitmap currentFrame = null;
         private object asyncLock = new object();
-        private HeadlessCameraPlayer headlessPlayer = new HeadlessCameraPlayer();
+        public HeadlessCameraPlayer HeadlessPlayer { get; private set; }
         private Timer timerPaint = new Timer();
         public CameraPlayer()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw |
              ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
 
-            headlessPlayer.NewFrameReceived += HeadlessPlayer_NewFrameReceived;
+            HeadlessPlayer.NewFrameReceived += HeadlessPlayer_NewFrameReceived;
             timerPaint.Interval = 17;
             timerPaint.Tick += TimerPaint_Tick;
             timerPaint.Enabled = true;
@@ -43,30 +43,30 @@ namespace Zack.WinFormCoreCameraPlayer
         {
             get
             {
-                return this.headlessPlayer.Status;
+                return this.HeadlessPlayer.Status;
             }
         }
 
         public void SetFrameFilter(Action<Mat> frameFilterFunc)
         {
-            headlessPlayer.SetFrameFilter(frameFilterFunc);
+            HeadlessPlayer.SetFrameFilter(frameFilterFunc);
         }
 
         public int FramePerSecond
         {
             get
             {
-                return this.headlessPlayer.FramePerSecond;
+                return this.HeadlessPlayer.FramePerSecond;
             }
             set
             {
-                this.headlessPlayer.FramePerSecond = value;
+                this.HeadlessPlayer.FramePerSecond = value;
             }
         }
 
         public void Start(int deviceIndex, System.Drawing.Size frameSize)
         {
-            this.headlessPlayer.Start(deviceIndex, frameSize);
+            this.HeadlessPlayer.Start(deviceIndex, frameSize);
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -77,7 +77,7 @@ namespace Zack.WinFormCoreCameraPlayer
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (headlessPlayer.Status == PlayerStatus.Started)
+            if (HeadlessPlayer.Status == PlayerStatus.Started)
             {
                 lock(asyncLock)
                 {
@@ -88,24 +88,24 @@ namespace Zack.WinFormCoreCameraPlayer
             else
             {
                 e.Graphics.Clear(Color.Black);
-                e.Graphics.DrawString(headlessPlayer.Status.ToString(), this.Font, Brushes.White, new PointF(0, 0));
+                e.Graphics.DrawString(HeadlessPlayer.Status.ToString(), this.Font, Brushes.White, new PointF(0, 0));
             }
         }
 
         public void SignalToStop()
         {
-            this.headlessPlayer.SignalToStop();
+            this.HeadlessPlayer.SignalToStop();
         }
 
         public Task WaitForStopAsync()
         {
-            return this.headlessPlayer.WaitForStopAsync();
+            return this.HeadlessPlayer.WaitForStopAsync();
         }
 
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            headlessPlayer.Dispose();
+            HeadlessPlayer.Dispose();
             timerPaint.Enabled = false;
             timerPaint.Dispose();
         }
